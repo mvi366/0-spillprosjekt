@@ -23,11 +23,11 @@ GREEN = (46, 139, 87)
 #definer variabler
 
 SVERD_SIZE = 180
-SVERD_SCALE = 3
+SVERD_SCALE = 4
 SVERD_OFFSET = [80, 58]
 SVERD_DATA = [SVERD_SIZE, SVERD_SCALE, SVERD_OFFSET]
 ANDRE_SIZE = 200
-ANDRE_SCALE = 3.3
+ANDRE_SCALE = 4.5
 ANDRE_OFFSET = [87, 75]
 ANDRE_DATA = [ANDRE_SIZE, ANDRE_SCALE, ANDRE_OFFSET]
 
@@ -38,12 +38,12 @@ sverd = pygame.image.load("bilder/sverd/sverdsheet.png").convert_alpha()
 andre = pygame.image.load("bilder/sverd/sverd2.png").convert_alpha()
 #antall steg i animasjon
 
-SVERD_STEG = [11, 8, 6, 7, 7, 4, 11]
+SVERD_STEG = [9, 8, 6, 7, 7, 4, 11]
 ANDRE_STEG = [4, 8, 4, 4, 4, 3, 7]
 
 
 #bakgrunn
-bg_bilde = pygame.image.load("bilder/bak.png").convert_alpha()
+bg_bilde = pygame.image.load("bilder/bakr.gif").convert_alpha()
 def tegn_bg():
     scale_bg = pygame.transform.scale(bg_bilde, (BREDDE, HOYDE))
     vindu.blit(scale_bg, (0,0))
@@ -56,8 +56,8 @@ def tegn_liv(liv, x, y):
     pygame.draw.rect(vindu, GREEN, (x, y, 400 * forhold, 30))
 
 #spillere
-spiller_1 = Spiller(200, 310, False, SVERD_DATA, sverd, SVERD_STEG)
-spiller_2 = Spiller(700,310, True, ANDRE_DATA, andre, ANDRE_STEG)
+spiller_1 = Spiller(1, 200, 310, False, SVERD_DATA, sverd, SVERD_STEG)
+spiller_2 = Spiller(2, 700,310, True, ANDRE_DATA, andre, ANDRE_STEG)
 
 while True:
     #tegne bakgrunn
@@ -69,7 +69,13 @@ while True:
 
     #flytt spilelr
     spiller_1.flytt(BREDDE, HOYDE, vindu, spiller_2)
-    #spiller_2.flytt()
+    spiller_2.flytt(BREDDE, HOYDE, vindu, spiller_1)
+
+    #oppdatere spillere
+    spiller_1.update()
+    spiller_2.update()
+
+
     # tegne spiller
     spiller_1.tegn(vindu)
     spiller_2.tegn(vindu)

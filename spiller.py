@@ -1,7 +1,8 @@
 import pygame
 
 class Spiller():
-    def __init__(self, x, y, flip, data, sheet, animasjon_steg ) -> None:
+    def __init__(self, spiller, x, y, flip, data, sheet, animasjon_steg ) -> None:
+        self.spiller = spiller
         self.size = data[0]
         self.image_scale = data[1]
         self.offset = data[2]
@@ -10,12 +11,17 @@ class Spiller():
         self.action = 0 #0.: idle 1: løp, 2: hopp, 3: angrep1, 4: angrep2, 5: truffet, 6:dø
         self.frame_index = 0
         self.image = self.animasjon_list[self.action][self.frame_index]
+        self.update_time = pygame.time.get_ticks()
         self.rect = pygame.Rect((x, y, 80, 180))
         self.vel_y = 0
+        self.running = False
         self.hopp = False 
         self.angrip = False
         self.angreptype = 0
+        self.angrep_cooldown = 0
+        self.skade = False
         self.liv = 100
+        self.ilive = True
 
 
     def load_images(self, sheet, animasjon_steg):
@@ -36,33 +42,64 @@ class Spiller():
         TYNGDE = 2
         dx = 0
         dy = 0
+        self.running = False
+        self.angreptype = 0
         #taster
         key = pygame.key.get_pressed()
         
         #spiller kan ikke gjøre andre ting imens den angriper
-        if self.angrip == False:
+        if self.angrip == False and self.ilive == True: #kan ikke bevege seg når spiller er død
+            #sjekk spiller 1 kontroller
+            if self.spiller == 1:
+                #flytting
+                if key[pygame.K_a]:
+                    dx = -FART
+                    self.running = True
+                if key[pygame.K_d]:
+                    dx = FART
+                    self.running = True
 
-            #flytting
-            if key[pygame.K_a]:
-                dx = -FART
-            if key[pygame.K_d]:
-                dx = FART
+                #hopp
+                if key[pygame.K_w] and self.hopp == False:
+                    self.vel_y = -30
+                    self.hopp = True
 
-            #hopp
-            if key[pygame.K_w] and self.hopp == False:
-                self.vel_y = -30
-                self.hopp = True
+                #angrep
+                if key[pygame.K_r] or key[pygame.K_t]:
+                    self.angrep(surface, fiende)
 
-            #angrep
-            if key[pygame.K_r] or key[pygame.K_t]:
-                self.angrep(surface, fiende)
+                    #hvilken angepstype
+                    if key[pygame.K_r]:
+                        self.angreptype = 1
+                    if key[pygame.K_t]:
+                        self.angreptype = 2
 
-                #hvilken angepstype
-                if key[pygame.K_r]:
-                    self.angreptype = 1
-                if key[pygame.K_t]:
-                    self.angreptype = 2
-            
+            #sjekk spiller 2 kontroller
+            if self.spiller == 2:
+                #flytting
+                if key[pygame.K_LEFT]:
+                    dx = -FART
+                    self.running = True
+                if key[pygame.K_RIGHT]:
+                    dx = FART
+                    self.running = True
+
+                #hopp
+                if key[pygame.K_UP] and self.hopp == False:
+                    self.vel_y = -30
+                    self.hopp = True
+
+                #angrep
+                if key[pygame.K_l] or key[pygame.K_k]:
+                    self.angrep(surface, fiende)
+
+                    #hvilken angepstype
+                    if key[pygame.K_l]:
+                        self.angreptype = 1
+                    if key[pygame.K_k]:
+                        self.angreptype = 2
+                        
+                
         
         #tyngdekraft
         self.vel_y += TYNGDE
@@ -86,19 +123,83 @@ class Spiller():
             self.flip = True
 
 
+        #sett på cooldown etter angrep
+        if self.angrep_cooldown > 0:
+            self.angrep_cooldown -= 1
+
+
         #oppdatere posisjon
         self.rect.x += dx
         self.rect.y += dy
+    
+    def update(self):
+        #sjekke hvilken animasjon
+        if self.liv <= 0:
+            self.liv = 0
+            self.ilive = False
+            self.update_action(6)
+        elif self.skade == True:
+            self.update_action(5)
+        elif self.angrip == True:
+            if self.angreptype == 1:
+                self.update_action(3)
+            elif self.angreptype == 2:
+                self.update_action(4)
+
+
+        elif self.hopp == True:
+            self.update_action(2)
+
+        elif self.running == True:
+            self.update_action(1)
+        else:
+            self.update_action(0)
+        animasjon_cooldown = 80
+        #oppdatere bilde
+        self.image = self.animasjon_list[self.action][self.frame_index]
+        #sjekke om nok tid har gått
+        if pygame.time.get_ticks() - self.update_time > animasjon_cooldown:
+            self.frame_index += 1
+            self.update_time = pygame.time.get_ticks()
+        #sjekke om animasjonen er ferdig
+        if self.frame_index >= len(self.animasjon_list[self.action]):
+            #hvis spilleren er død, avslutt animasjonen
+            if self.ilive == False:
+                self.frame_index = len(self.animasjon_list[self.action]) - 1 # blir på det siste bilde i listen til animasjonen
+            else:
+
+                self.frame_index = 0
+                #sjekke om angrep har skjedd
+                if self.action == 3 or self.action == 4:
+                    self.angrip = False
+                    self.angrep_cooldown = 25
+                #sjekke om det ble skade
+                if self.action ==5:
+                    self.skade = False
+                    #hvis spilleren var i midten av et angrep, vil angrepet bli stoppet
+                    self.angrip = False
+                    self.angrep_cooldown = 20
+
+
+
 
     def angrep(self, surface, fiende):
-        self.angrip = True
-        angrip_rect = pygame.Rect(self.rect.centerx - ( 2* self.rect.width * self.flip), self.rect.y, 2 * self.rect.width, self.rect.height)
-        if angrip_rect.colliderect(fiende.rect):
-            fiende.liv -= 10
+        if self.angrep_cooldown == 0:
+            self.angrip = True
+            angrip_rect = pygame.Rect(self.rect.centerx - ( 2* self.rect.width * self.flip), self.rect.y, 2 * self.rect.width, self.rect.height)
+            if angrip_rect.colliderect(fiende.rect):
+                fiende.liv -= 10
+                fiende.skade = True
 
-        pygame.draw.rect(surface, (0, 255, 0), angrip_rect)
+            pygame.draw.rect(surface, (0, 255, 0), angrip_rect)
 
 
+    def update_action(self, ny_action):
+        #sjekke om den nye handlingen er annerledes
+        if ny_action != self.action:
+            self.action = ny_action
+            self.frame_index = 0
+            self.update_time = pygame.time.get_ticks()
 
 
     def tegn(self, surface):
