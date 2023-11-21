@@ -1,5 +1,7 @@
 import pygame
 from spiller import Spiller
+from merliv import Merliv
+from mindreliv import Mindreliv
 
 
 
@@ -15,10 +17,16 @@ FPS = 60
 klokke = pygame.time.Clock()
 
 YELLOW = (255,255,0)
-RED = (189, 34, 28)
+RED = (120, 29, 22)
 WHITE = (255, 255, 255)
 GREEN = (15, 145, 91)
+BLACK = (0, 0, 0)
+DARK = (71, 74, 64)
 
+
+
+merliv = Merliv(BREDDE)
+mindreliv = Mindreliv(BREDDE)
 #definer spill variabler
 start_nedtelling = 3
 nedtelling_update = pygame.time.get_ticks()
@@ -70,7 +78,7 @@ def tegn_bg():
 #tegne liv 
 def tegn_liv(liv, x, y):
     forhold = liv / 100
-    pygame.draw.rect(vindu, WHITE, (x - 2, y- 2, 405, 35))
+    pygame.draw.rect(vindu, YELLOW, (x - 2, y- 2, 404, 34))
     pygame.draw.rect(vindu, RED, (x, y, 400, 30))
     pygame.draw.rect(vindu, GREEN, (x, y, 400 * forhold, 30))
 
@@ -83,8 +91,11 @@ while True:
     tegn_bg()
 
     #vis poeng
-    tegn_tekst("Spiller 1: " + str(poeng[0]), font_poeng, WHITE, 20, 60)
-    tegn_tekst("Spiller 2: " + str(poeng[1]), font_poeng, WHITE, 580, 60)
+
+    pygame.draw.rect(vindu, DARK, (18, 60, 94, 30))
+    pygame.draw.rect(vindu, DARK, (878, 60, 94, 30))
+    tegn_tekst("Spiller 1 : " + str(poeng[0]), font_poeng, WHITE, 20, 60)
+    tegn_tekst("Spiller 2 : " + str(poeng[1]), font_poeng, WHITE, 880, 60)
 
 
     #vis liv
@@ -139,10 +150,18 @@ while True:
     spiller_1.update()
     spiller_2.update()
 
+    mindreliv.fall(HOYDE)
+    merliv.vis(BREDDE)
+
+
 
     # tegne spiller
     spiller_1.tegn(vindu)
     spiller_2.tegn(vindu)
+
+
+    merliv.tegn(vindu)
+    mindreliv.tegn(vindu)
     # 2. håndterer spillet
     for hendelse in pygame.event.get():
         if hendelse.type == pygame.QUIT:
@@ -151,5 +170,6 @@ while True:
     # 3. oppdater spill
     pygame.display.update()
     # 4. tegn
+    merliv.tegn(vindu)
     
     klokke.tick(FPS)

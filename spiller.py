@@ -12,7 +12,7 @@ class Spiller():
         self.frame_index = 0
         self.image = self.animasjon_liste[self.action][self.frame_index]
         self.update_time = pygame.time.get_ticks()
-        self.rect = pygame.Rect((x, y, 80, 180))
+        self.rect = pygame.Rect((x, y, 80, 180)) 
         self.vel_y = 0
         self.running = False
         self.hopp = False 
