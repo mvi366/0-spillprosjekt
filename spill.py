@@ -15,16 +15,24 @@ FPS = 60
 klokke = pygame.time.Clock()
 
 YELLOW = (255,255,0)
-RED = (255, 0, 0)
+RED = (189, 34, 28)
 WHITE = (255, 255, 255)
-GREEN = (46, 139, 87)
+GREEN = (15, 145, 91)
+
+#definer spill variabler
+start_nedtelling = 3
+nedtelling_update = pygame.time.get_ticks()
+poeng = [0, 0] # poeng til spillere [spiller1, spiller2]
+runde_slutt = False
+
+RUNDE_SLUTT_COOLDOWN = 3000
 
 
-#definer variabler
+#definer spiller variabler
 
 SVERD_SIZE = 180
 SVERD_SCALE = 4
-SVERD_OFFSET = [80, 58]
+SVERD_OFFSET = [88, 58]
 SVERD_DATA = [SVERD_SIZE, SVERD_SCALE, SVERD_OFFSET]
 ANDRE_SIZE = 200
 ANDRE_SCALE = 4.5
@@ -40,6 +48,17 @@ andre = pygame.image.load("bilder/sverd/sverd2.png").convert_alpha()
 
 SVERD_STEG = [9, 8, 6, 7, 7, 4, 11]
 ANDRE_STEG = [4, 8, 4, 4, 4, 3, 7]
+
+# definer fonter
+font_nedtelling = pygame.font.SysFont("impact", 80)
+font_poeng = pygame.font.SysFont("impact", 20)
+font_vinn = pygame.font.SysFont("impact", 60)
+
+# funksjon for tegning av teksten
+def tegn_tekst( tekst, font, tekst_farge, x, y):
+    img = font.render(tekst, True, tekst_farge)
+    vindu.blit(img, (x, y))
+
 
 
 #bakgrunn
@@ -63,13 +82,58 @@ while True:
     #tegne bakgrunn
     tegn_bg()
 
+    #vis poeng
+    tegn_tekst("Spiller 1: " + str(poeng[0]), font_poeng, WHITE, 20, 60)
+    tegn_tekst("Spiller 2: " + str(poeng[1]), font_poeng, WHITE, 580, 60)
+
+
     #vis liv
     tegn_liv(spiller_1.liv, 20, 20)
     tegn_liv(spiller_2.liv, 580, 20)
 
-    #flytt spilelr
-    spiller_1.flytt(BREDDE, HOYDE, vindu, spiller_2)
-    spiller_2.flytt(BREDDE, HOYDE, vindu, spiller_1)
+    #oppdatere nedtelling
+    if start_nedtelling <= 0: 
+
+        #flytt spillere
+        spiller_1.flytt(BREDDE, HOYDE, vindu, spiller_2)
+        spiller_2.flytt(BREDDE, HOYDE, vindu, spiller_1)
+    else:
+        #vis nedtelling
+        tegn_tekst(str(start_nedtelling), font_nedtelling, WHITE, 479, 300)
+        #oppdater nedtelling
+        if (pygame.time.get_ticks() - nedtelling_update) >= 1000:
+            start_nedtelling -= 1
+            nedtelling_update = pygame.time.get_ticks()
+
+    #sjekke hvem som har vunnet
+    if runde_slutt == False:
+        if spiller_1.ilive == False:
+            poeng[1] += 1
+            runde_slutt = True
+            runde_slutt_tid = pygame.time.get_ticks()
+            vinner = "spiller 2"
+            print(poeng)
+        elif spiller_2.ilive == False:
+            poeng[0] += 1
+            runde_slutt = True
+            vinner = "spiller 1"
+            runde_slutt_tid = pygame.time.get_ticks()
+            
+    else:
+    #print vinneren
+        tegn_tekst(f"{vinner} har vunnet", font_vinn, WHITE, 270, 300)
+        if pygame.time.get_ticks() - runde_slutt_tid > RUNDE_SLUTT_COOLDOWN:
+            runde_slutt = False
+            start_nedtelling = 3
+            spiller_1 = Spiller(1, 200, 310, False, SVERD_DATA, sverd, SVERD_STEG) # gir fulle liv
+            spiller_2 = Spiller(2, 700,310, True, ANDRE_DATA, andre, ANDRE_STEG)
+
+
+
+
+            
+
+            
 
     #oppdatere spillere
     spiller_1.update()

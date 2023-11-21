@@ -7,10 +7,10 @@ class Spiller():
         self.image_scale = data[1]
         self.offset = data[2]
         self.flip = flip
-        self.animasjon_list = self.load_images(sheet, animasjon_steg)
+        self.animasjon_liste = self.load_images(sheet, animasjon_steg)
         self.action = 0 #0.: idle 1: løp, 2: hopp, 3: angrep1, 4: angrep2, 5: truffet, 6:dø
         self.frame_index = 0
-        self.image = self.animasjon_list[self.action][self.frame_index]
+        self.image = self.animasjon_liste[self.action][self.frame_index]
         self.update_time = pygame.time.get_ticks()
         self.rect = pygame.Rect((x, y, 80, 180))
         self.vel_y = 0
@@ -20,21 +20,21 @@ class Spiller():
         self.angreptype = 0
         self.angrep_cooldown = 0
         self.skade = False
-        self.liv = 100
+        self.liv = 50
         self.ilive = True
 
 
     def load_images(self, sheet, animasjon_steg):
         y = 0
-        animasjon_list = []
+        animasjon_liste = []
         for animasjon in animasjon_steg:
             temp_img_list =[]
             for x in range(animasjon):
                 temp_img = sheet.subsurface(x * self.size, y * self.size, self.size, self.size)
                 temp_img_list.append(pygame.transform.scale(temp_img,(self.size *self.image_scale, self.size * self.image_scale)))
             y += 1
-            animasjon_list.append(temp_img_list)
-        return animasjon_list
+            animasjon_liste.append(temp_img_list)
+        return animasjon_liste
 
     
     def flytt(self, bredde, hoyde, surface, fiende):
@@ -156,16 +156,16 @@ class Spiller():
             self.update_action(0)
         animasjon_cooldown = 80
         #oppdatere bilde
-        self.image = self.animasjon_list[self.action][self.frame_index]
+        self.image = self.animasjon_liste[self.action][self.frame_index]
         #sjekke om nok tid har gått
         if pygame.time.get_ticks() - self.update_time > animasjon_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
         #sjekke om animasjonen er ferdig
-        if self.frame_index >= len(self.animasjon_list[self.action]):
+        if self.frame_index >= len(self.animasjon_liste[self.action]):
             #hvis spilleren er død, avslutt animasjonen
             if self.ilive == False:
-                self.frame_index = len(self.animasjon_list[self.action]) - 1 # blir på det siste bilde i listen til animasjonen
+                self.frame_index = len(self.animasjon_liste[self.action]) - 1 # blir på det siste bilde i listen til animasjonen
             else:
 
                 self.frame_index = 0
@@ -191,7 +191,6 @@ class Spiller():
                 fiende.liv -= 10
                 fiende.skade = True
 
-            pygame.draw.rect(surface, (0, 255, 0), angrip_rect)
 
 
     def update_action(self, ny_action):
@@ -204,5 +203,5 @@ class Spiller():
 
     def tegn(self, surface):
         img = pygame.transform.flip(self.image, self.flip, False)
-        pygame.draw.rect(surface, (255, 0, 0), self.rect)
+        
         surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))

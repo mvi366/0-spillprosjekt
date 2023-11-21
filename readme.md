@@ -8,7 +8,8 @@ to do:
 - [x] bevegelse
 - [x] angrep
 - [x] helse/liv
-- [ ] laste inn spritesheet
-- [ ] animasjon
-- [ ] bevegelse for spiller 2 
-- [/] miste liv/dø
+- [x] laste inn spritesheet
+- [x] animasjon
+- [x] bevegelse for spiller 2 
+- [x] miste liv/dø
+- [ ] lage nedtelling
