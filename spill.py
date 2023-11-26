@@ -87,6 +87,7 @@ spiller_1 = Spiller(1, 200, 310, False, SVERD_DATA, sverd, SVERD_STEG)
 spiller_2 = Spiller(2, 700,310, True, ANDRE_DATA, andre, ANDRE_STEG)
 
 while True:
+
     #tegne bakgrunn
     tegn_bg()
 
@@ -115,6 +116,30 @@ while True:
         if (pygame.time.get_ticks() - nedtelling_update) >= 1000:
             start_nedtelling -= 1
             nedtelling_update = pygame.time.get_ticks()
+    
+
+
+    #kollisjon mellom xliv og spillere
+
+    if spiller_1.kollisjon(merliv):
+        merliv.fjern()
+        spiller_1.liv += 10
+        #spillere får +10 liv hvis de kolliderer med merliv
+
+    if spiller_2.kollisjon(merliv):
+        merliv.fjern()
+        spiller_2.liv += 10
+
+    if spiller_1.kollisjon(mindreliv):
+        mindreliv.fjern()
+        spiller_1.liv -= 10
+        #spillere får -10 liv hvis de kolliderer med mindreliv
+
+    if spiller_2.kollisjon(mindreliv):
+        mindreliv.fjern()
+        spiller_2.liv -= 10
+    
+    
 
     #sjekke hvem som har vunnet
     if runde_slutt == False:
@@ -129,6 +154,7 @@ while True:
             runde_slutt = True
             vinner = "spiller 1"
             runde_slutt_tid = pygame.time.get_ticks()
+
             
     else:
     #print vinneren
@@ -150,6 +176,8 @@ while True:
     spiller_1.update()
     spiller_2.update()
 
+
+
     mindreliv.fall(HOYDE)
     merliv.vis(BREDDE)
 
@@ -170,6 +198,5 @@ while True:
     # 3. oppdater spill
     pygame.display.update()
     # 4. tegn
-    merliv.tegn(vindu)
     
     klokke.tick(FPS)

@@ -11,8 +11,8 @@ class Merliv(Figur):
         self.ny_plassering(vindu_bredde)
     
     def ny_plassering(self, vindu_bredde: int):
-        self.ramme.centerx = random.randint(0, vindu_bredde)
-        self.ramme.centery = 200 
+        self.rect.centerx = random.randint(0, vindu_bredde)
+        self.rect.centery = 200 
         self.siste_tid = pygame.time.get_ticks()
 
     def vis(self, vindu_bredde: int):

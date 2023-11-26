@@ -20,7 +20,7 @@ class Spiller():
         self.angreptype = 0
         self.angrep_cooldown = 0
         self.skade = False
-        self.liv = 50
+        self.liv = 100
         self.ilive = True
 
 
@@ -205,3 +205,7 @@ class Spiller():
         img = pygame.transform.flip(self.image, self.flip, False)
         
         surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
+
+    def kollisjon(self, xliv):
+        return self.rect.colliderect(xliv.rect)
+        
